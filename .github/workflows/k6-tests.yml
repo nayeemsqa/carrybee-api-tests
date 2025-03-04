@@ -1,0 +1,40 @@
+name: K6 API Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  api-tests:
+    runs-on: windows-latest  # Use Windows environment
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install K6 on Windows
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/grafana/k6/releases/download/v0.42.0/k6-v0.42.0-windows-amd64.zip" -OutFile "k6.zip"
+          Expand-Archive -Path "k6.zip" -DestinationPath "k6"
+          echo "$PWD\k6" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+
+      - name: Verify K6 Installation
+        run: k6 version
+
+      - name: Run API Tests
+        run: k6 run tests/sample-test.js
+
+      - name: Upload Test Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: k6-reports
+          path: reports/
