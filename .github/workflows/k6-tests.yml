@@ -34,7 +34,7 @@ jobs:
         run: k6 run tests/sample-test.js
 
       - name: Upload Test Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: k6-reports
           path: reports/
